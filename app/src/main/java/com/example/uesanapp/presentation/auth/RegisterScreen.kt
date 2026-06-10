@@ -16,19 +16,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.uesanapp.data.repository.LocalRepository
+import kotlinx.coroutines.launch
 
 @Composable
-fun RegisterScreen(navController : NavController) {
-    var name by remember { mutableStateOf("")}
+fun RegisterScreen(
+    navController: NavController,
+    repository: LocalRepository
+) {
+    var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("")}
-    var confirm_password by remember { mutableStateOf("")}
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -38,39 +46,37 @@ fun RegisterScreen(navController : NavController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Iniciar Sesión",
-            style = MaterialTheme.typography.titleLarge)
+        Text(
+            "Registro",
+            style = MaterialTheme.typography.titleLarge
+        )
 
         OutlinedTextField(
             value = name,
-            onValueChange = {name = it},
-            label = { Text("Nombre")},
-            placeholder = { Text("Nombre")},
+            onValueChange = { name = it },
+            label = { Text("Nombre") },
             modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
             value = email,
-            onValueChange = {email = it},
-            label = { Text("Correo Electrónico")},
-            placeholder = { Text("Correo Electrónico")},
+            onValueChange = { email = it },
+            label = { Text("Correo Electrónico") },
             modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
             value = password,
-            onValueChange = {password = it},
-            label = { Text("Contraseña")},
-            placeholder = { Text("Contraseña")},
+            onValueChange = { password = it },
+            label = { Text("Contraseña") },
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = PasswordVisualTransformation()
         )
 
         OutlinedTextField(
-            value = confirm_password,
-            onValueChange = {confirm_password = it},
-            label = { Text("Confirmar Contraseña")},
-            placeholder = { Text("Confirmar Contraseña")},
+            value = confirmPassword,
+            onValueChange = { confirmPassword = it },
+            label = { Text("Confirmar Contraseña") },
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = PasswordVisualTransformation()
         )
@@ -79,17 +85,21 @@ fun RegisterScreen(navController : NavController) {
 
         Button(
             onClick = {
-                if(email.isNotBlank()
-                    && password.isNotBlank()
-                    && name.isNotBlank()
-                    && password == confirm_password)
-                {
-                    navController.navigate("login")
+                if (
+                    name.isNotBlank() &&
+                    email.isNotBlank() &&
+                    password.isNotBlank() &&
+                    password == confirmPassword
+                ) {
+                    scope.launch {
+                        repository.registerUser(name, email, password)
+                        navController.navigate("login")
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Ingresar")
+            Text("Registrarse")
         }
     }
 }

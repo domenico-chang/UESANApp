@@ -37,20 +37,24 @@ fun DrawerScaffold(navController: NavController,
             ModalDrawerSheet {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text("Menú principal", modifier = Modifier.padding(16.dp))
-                //Home
                 NavigationDrawerItem(
                     label = { Text("Home") },
                     selected = false,
                     onClick = {
-                        navController.navigate("home")
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("home")
+                        }
                     }
                 )
-                //Permissiions
                 NavigationDrawerItem(
-                    label = { Text("Favorites") },
+                    label = { Text("Favoritos") },
                     selected = false,
                     onClick = {
-                        navController.navigate("favorites")
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("favorites")
+                        }
                     }
                 )
             }

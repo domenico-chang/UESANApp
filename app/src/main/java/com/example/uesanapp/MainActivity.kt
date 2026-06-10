@@ -4,15 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.uesanapp.presentation.auth.LoginScreen
-import com.example.uesanapp.presentation.auth.RegisterScreen
+import com.example.uesanapp.data.local.AppDatabase
+import com.example.uesanapp.data.repository.LocalRepository
 import com.example.uesanapp.presentation.navigation.AppNavGraph
 import com.example.uesanapp.ui.theme.UESANAppTheme
 
@@ -20,9 +13,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val database = AppDatabase.getDatabase(this)
+        val repository = LocalRepository(
+            countryDao = database.countryDao(),
+            userDao = database.userDao()
+        )
+
         setContent {
             UESANAppTheme {
-                AppNavGraph()
+                AppNavGraph(repository)
             }
         }
     }

@@ -16,17 +16,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.uesanapp.data.repository.LocalRepository
+import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(navController : NavController) {
+fun LoginScreen(
+    navController: NavController,
+    repository: LocalRepository
+) {
     var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("")}
+    var password by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf("") }
+
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -36,34 +45,42 @@ fun LoginScreen(navController : NavController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Iniciar Sesión",
-            style = MaterialTheme.typography.titleLarge)
+        Text(
+            "Iniciar Sesión",
+            style = MaterialTheme.typography.titleLarge
+        )
 
         OutlinedTextField(
             value = email,
-            onValueChange = {email = it},
-            label = { Text("Correo Electrónico")},
-            placeholder = { Text("Correo Electrónico")},
+            onValueChange = { email = it },
+            label = { Text("Correo Electrónico") },
             modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
             value = password,
-            onValueChange = {password = it},
-            label = { Text("Contraseña")},
-            placeholder = { Text("Contraseña")},
+            onValueChange = { password = it },
+            label = { Text("Contraseña") },
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = PasswordVisualTransformation()
         )
+
+        if (error.isNotBlank()) {
+            Text(error, color = MaterialTheme.colorScheme.error)
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
-                if(email.isNotBlank()
-                    && password.isNotBlank())
-                {
-                    navController.navigate("home")
+                scope.launch {
+                    val isValid = repository.login(email, password)
+
+                    if (isValid) {
+                        navController.navigate("home")
+                    } else {
+                        error = "Correo o contraseña incorrectos"
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth()
